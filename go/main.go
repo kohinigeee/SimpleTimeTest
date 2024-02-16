@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"looptest/lib"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"runtime/trace"
@@ -24,15 +23,15 @@ func main() {
 	logger := lib.L()
 	flag.IntVar(&loopMax, "loopMax", 0, "loopMax")
 	flag.IntVar(&loopCnt, "loopCnt", 0, "loopCnt")
-	flag.StringVar(&traceName, "traceName", "", "traceName")
 	flag.Parse()
 
-	if loopMax == 0 || loopCnt == 0 || traceName == "" {
+	if loopMax == 0 || loopCnt == 0 {
 		lib.L().Error("loopMax and loopCnt must be set")
 		flag.Usage()
 		return
 	}
 
+	traceName = fmt.Sprintf("trace_%d_%d", loopMax, loopCnt)
 	foldaPath := "trace"
 	traceFileName := traceName + ".out"
 	filePath := filepath.Join(foldaPath, traceFileName)
@@ -79,8 +78,7 @@ func test1(ctx context.Context) lib.ExeTimer {
 	for i := 0; i < loopCnt; i++ {
 		region := trace.StartRegion(ctx, fmt.Sprintf("Loop [%d]", i))
 		func(i int) {
-			r := makeRand(i)
-			loop(r)
+			loop()
 			logger.Info("[Test1] loop done", "i", i)
 		}(i)
 		region.End()
@@ -104,8 +102,7 @@ func test1Concurrent(ctx context.Context) lib.ExeTimer {
 			defer wg.Done()
 			region := trace.StartRegion(ctx, fmt.Sprintf("Loop [%d]", i))
 			defer region.End()
-			r := makeRand(i)
-			loop(r)
+			loop()
 			logger.Info("[Test1 Concurrent] loop done", "i", i)
 		}(i)
 	}
@@ -116,18 +113,12 @@ func test1Concurrent(ctx context.Context) lib.ExeTimer {
 	return *wholetimer
 }
 
-func makeRand(seed int) *rand.Rand {
-	source := rand.NewSource(int64(seed))
-	return rand.New(source)
-}
-
-func loop(r *rand.Rand) {
+func loop() {
 
 	values := make([]int, loopMax)
 
 	for i := 0; i < loopMax; i++ {
-		value := r.Int63n(1_0000)
-		values[i] = int(value)
+		values[loopMax-i-1] = int(i)
 	}
 
 	sort.Ints(values)
