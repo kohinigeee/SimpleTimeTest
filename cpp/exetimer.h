@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 #ifndef EXETIMER_HEADER
 #define EXETIMER_HEADER
+=======
+#ifndef UTLITY_EXETIMER_HEADER
+#define UTLITY_EXETIMER_HEADER
+>>>>>>> 73d89fa7205dab842a7116dbb3476ddee1696d9f
 
 #include <chrono>
 #include <iostream>
@@ -40,4 +45,8 @@ ExeTimer startTimer() {
     return ExeTimer(std::chrono::system_clock::now());
 }
 
+<<<<<<< HEAD
 #endif
+=======
+#endif
+>>>>>>> 73d89fa7205dab842a7116dbb3476ddee1696d9f
